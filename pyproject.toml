@@ -6,15 +6,21 @@ build-backend = "setuptools.build_meta"
 name = "transaction-cost-engine"
 version = "0.1.0"
 description = "Transaction cost and market impact model: spread, impact, fees, slippage, execution scheduling, and net profitability analysis"
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.13"
 dependencies = [
-    "pandas>=2.0",
-    "numpy>=1.23",
-    "pyyaml>=6.0",
-    "alpha-validation-toolkit @ git+https://github.com/Patience-Fuglo/alpha-validation-toolkit.git",
-    "factor-model-engine @ git+https://github.com/Patience-Fuglo/factor-model-engine.git",
-    "portfolio-construction-engine @ git+https://github.com/Patience-Fuglo/portfolio-construction-engine.git",
+    "pandas>=2.0,<4.0",
+    "numpy>=1.23,<3.0",
+    "pyyaml>=6.0,<7.0",
+    "factor-model-engine @ git+https://github.com/Patience-Fuglo/factor-model-engine.git@0b9cc0fd7fea8d940080e8210185f370d4a39bc1",
+    "portfolio-construction-engine @ git+https://github.com/Patience-Fuglo/portfolio-construction-engine.git@678cc6c68ca2cc339e4e968db7065ea9b71388d3",
 ]
+# alpha-validation-toolkit was previously declared here but never
+# actually imported anywhere in src/ or tests/ (confirmed via grep) --
+# removed during a portfolio-wide dependency reproducibility audit,
+# the same real defect already found and fixed in portfolio-risk-engine
+# earlier in this build. It still arrives transitively via
+# portfolio-construction-engine's own real dependency, so nothing that
+# genuinely needs it loses access.
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
