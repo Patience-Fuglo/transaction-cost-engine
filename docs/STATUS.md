@@ -64,8 +64,25 @@ explicit, conservative fallback.
 doubles slippage (real sqrt-time scaling). 27 tests passing (was 22).
 Pushed.
 
-## Next up: Stage 6 -- Total Execution Cost
+## Stage 6 -- Total Execution Cost: COMPLETE
 
-Aggregates Stages 2-5 into one real per-trade and per-portfolio cost,
-consuming portfolio-construction-engine's own `OptimizationResult`
-directly.
+Added `execution/total_cost.py` (`compute_total_execution_cost`,
+`aggregate_portfolio_execution_cost`) and `execution/trade_builder.py`
+(`build_trade_orders`). `build_trade_orders` consumes
+`portfolio-construction-engine`'s own real `OptimizationResult`
+directly -- this engine never re-decides a trade, it only prices the
+cost of one already decided elsewhere. A security with no real price
+data for a real nonzero trade raises, rather than silently defaulting
+a price. `aggregate_portfolio_execution_cost` is the real unit
+conversion (`cost_fraction * abs(trade_weight)`) from per-trade-value
+to per-portfolio-value terms, needed before this can be compared
+against a real `gross_expected_return`.
+
+6 new unit tests, including a real genuine cross-repo check: building
+trade orders directly from a real `portfolio_construction.data.
+OptimizationResult`. 33 tests passing (was 27). Pushed.
+
+## Next up: Stage 7 -- Net Profitability
+
+`net_expected_return = gross_expected_return - total_execution_cost`,
+both real, both in portfolio-value units.
