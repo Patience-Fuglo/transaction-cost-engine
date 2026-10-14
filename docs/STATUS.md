@@ -3,6 +3,43 @@
 Tracks stage-by-stage completion, mirroring the other three engines'
 own `docs/STATUS.md` convention.
 
+## Remediation (portfolio-wide audit, item 3): cost-model consistency diagnostic
+
+A portfolio-wide audit found that two structurally different real
+"cost of trading" estimates coexist for the same real trade --
+`portfolio-construction-engine`'s own simplified optimizer-side
+`TransactionCostModel` (linear + impact^1.5, used only to make the
+optimizer itself cost-aware) and this engine's own detailed spread +
+impact + slippage + fee estimate -- with nothing checking they stay
+in the same ballpark.
+
+**Added** `diagnostics/cost_model_consistency.py`
+(`compare_cost_estimates`, `compare_cost_estimates_across_schedule`)
+and `CostModelConsistencyResult`: for the same real
+`OptimizationResult`, computes this engine's own real detailed cost
+(reusing `build_trade_orders` + `compute_total_execution_cost` +
+`aggregate_portfolio_execution_cost` directly -- no cost math
+reimplemented) and compares it against that result's own real
+`transaction_cost` field. Reports absolute and relative differences
+(the relative figure is floored against a real, configurable
+near-zero epsilon so two tiny agreeing estimates never produce an
+exploding ratio), and flags a real, configurable divergence -- never
+assuming the two models must match exactly, and never summing them
+(that would double-count the real cost of one trade). A security with
+a real nonzero trade but no real market data is excluded from the
+detailed estimate (with a real warning), never raised -- unlike
+`build_trade_orders`'s own deliberate "raise on missing price data"
+convention for the core pricing path, a diagnostic should not crash
+the whole comparison over one missing security.
+
+**Verified**, not merely written: 8 new unit tests
+(`tests/unit/test_cost_model_consistency.py`) confirm the near-zero
+floor behaves correctly, the configurable divergence threshold is
+actually respected (a moderate real divergence is flagged under a
+strict threshold and not flagged under a lenient one), a missing
+security is excluded rather than fatal, and the two real estimates
+are never summed. Full suite: 57 tests passing (was 49).
+
 ## Final summary (all 10 stages complete)
 
 **Architecture.** `data/` (schemas) -> `spread/` + `impact/` +
@@ -25,7 +62,8 @@ sqrt(delay_days)`; net profitability `gross_expected_return -
 total_execution_cost`, enforced as a real `__post_init__` identity on
 `NetProfitabilityResult`.
 
-**Test counts.** 49 tests passing: unit tests per cost component
+**Test counts.** 57 tests passing (was 49 before the cost-model
+consistency remediation above): unit tests per cost component
 (each verified against its own real formula and real monotonicity
 properties -- sqrt scaling in impact and slippage, confirmed by
 direct 4x-input tests), integration tests on real
@@ -201,7 +239,7 @@ Final Summary above) and `tests/integration/test_cli_workflow.py`
 (real subprocess CLI test). Added `scripts/run_cost_analysis.py`,
 this repo's first CLI entry point.
 
-49 tests passing (was 46). Full leak-check clean across the whole
+57 tests passing (49 before this pass, 46 before Stage 10). Full leak-check clean across the whole
 repo. Pushed.
 
 **All 10 stages of the transaction-cost-engine build are now

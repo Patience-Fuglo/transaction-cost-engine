@@ -101,6 +101,38 @@ class SchedulingConfig:
 
 
 @dataclass(frozen=True)
+class CostConsistencyConfig:
+    """Portfolio-wide audit remediation (item 3): thresholds for the
+    real cost-model consistency diagnostic, which compares
+    ``portfolio-construction-engine``'s own simplified optimizer-side
+    cost estimate against this engine's own detailed estimate for the
+    SAME real trade. Flags a meaningful divergence; never assumes the
+    two models must match exactly -- they are two deliberately
+    different real models (a simple linear+impact^1.5 estimate used
+    to make the optimizer itself cost-aware, vs. a detailed spread +
+    impact + slippage + fee estimate), not two implementations of the
+    same formula.
+    """
+
+    # RESEARCH ASSUMPTION -- the real relative difference
+    # (|a-b| / max(|a|, |b|, near_zero_epsilon)) above which the two
+    # real cost estimates are flagged as meaningfully divergent
+    relative_divergence_threshold: float = 0.50
+    # RESEARCH ASSUMPTION -- a real floor used only to keep the
+    # relative-difference denominator from blowing up when both real
+    # estimates are near zero (a genuinely tiny real trade) -- never
+    # used to inflate or hide a real difference between two
+    # non-trivial estimates
+    near_zero_epsilon: float = 1.0e-6
+
+    def __post_init__(self) -> None:
+        if self.relative_divergence_threshold <= 0:
+            raise ValueError("relative_divergence_threshold must be positive")
+        if self.near_zero_epsilon <= 0:
+            raise ValueError("near_zero_epsilon must be positive")
+
+
+@dataclass(frozen=True)
 class EngineConfig:
     run: RunConfig = field(default_factory=RunConfig)
     spread: SpreadConfig = field(default_factory=SpreadConfig)
@@ -108,6 +140,7 @@ class EngineConfig:
     slippage: SlippageConfig = field(default_factory=SlippageConfig)
     fee: FeeConfig = field(default_factory=FeeConfig)
     scheduling: SchedulingConfig = field(default_factory=SchedulingConfig)
+    cost_consistency: CostConsistencyConfig = field(default_factory=CostConsistencyConfig)
 
 
 def load_config(path: str) -> EngineConfig:
@@ -124,4 +157,5 @@ def load_config(path: str) -> EngineConfig:
         slippage=SlippageConfig(**raw.get("slippage", {})),
         fee=FeeConfig(**raw.get("fee", {})),
         scheduling=SchedulingConfig(**raw.get("scheduling", {})),
+        cost_consistency=CostConsistencyConfig(**raw.get("cost_consistency", {})),
     )

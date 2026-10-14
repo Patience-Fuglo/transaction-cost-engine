@@ -1,4 +1,4 @@
-from .schemas import CostComponent, ExecutionSchedule, NetProfitabilityResult, TotalExecutionCost, TradeOrder
+from .schemas import CostComponent, CostModelConsistencyResult, ExecutionSchedule, NetProfitabilityResult, TotalExecutionCost, TradeOrder
 
 __all__ = [
     "TradeOrder",
@@ -6,4 +6,5 @@ __all__ = [
     "TotalExecutionCost",
     "NetProfitabilityResult",
     "ExecutionSchedule",
+    "CostModelConsistencyResult",
 ]

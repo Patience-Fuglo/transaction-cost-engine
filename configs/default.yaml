@@ -27,3 +27,7 @@ fee:
 
 scheduling:
   max_participation_rate: 0.10          # RESEARCH ASSUMPTION
+
+cost_consistency:
+  relative_divergence_threshold: 0.50   # RESEARCH ASSUMPTION
+  near_zero_epsilon: 1.0e-6             # RESEARCH ASSUMPTION

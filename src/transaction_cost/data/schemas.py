@@ -134,3 +134,32 @@ class ExecutionSchedule:
             raise ValueError(f"{self.security_id}: required_days must be >= 1")
         if not 0 < self.max_participation_rate <= 1:
             raise ValueError(f"{self.security_id}: max_participation_rate must be in (0, 1]")
+
+
+@dataclass(frozen=True)
+class CostModelConsistencyResult:
+    """Portfolio-wide audit remediation (item 3): for the SAME real
+    trade, compares ``portfolio-construction-engine``'s own
+    simplified optimizer-side cost estimate
+    (``OptimizationResult.transaction_cost``) against this engine's
+    own detailed estimate (spread + impact + slippage + fee). Both
+    real numbers are already in the SAME unit (fraction of portfolio
+    value) -- neither is recomputed or replaced here, and neither
+    estimate is ever added to the other (that would double-count the
+    real cost of the same trade).
+
+    ``flagged_as_divergent`` is a real, configurable judgment call
+    (``CostConsistencyConfig.relative_divergence_threshold``), never
+    an assumption that the two models must agree: they are two
+    deliberately different real models, not two implementations of
+    the same formula.
+    """
+
+    portfolio_id: str
+    as_of: pd.Timestamp
+    optimizer_cost_fraction: float
+    detailed_cost_fraction: float
+    absolute_difference: float
+    relative_difference: float
+    flagged_as_divergent: bool
+    warnings: tuple[str, ...] = field(default_factory=tuple)
