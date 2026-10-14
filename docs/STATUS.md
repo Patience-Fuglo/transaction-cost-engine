@@ -114,7 +114,23 @@ actually threads `required_days` into the real slippage formula (not
 just computed independently and ignored). 42 tests passing (was 38).
 Pushed.
 
-## Next up: Stage 9 -- Reporting
+## Stage 9 -- Reporting: COMPLETE
 
-One reproducible JSON/Markdown report tying the whole engine
-together.
+Added `pipeline/pipeline.py` (`run_full_cost_analysis`, orchestrates
+Stages 6-8) and `reporting/report.py` (`report_to_dict`/
+`render_markdown_report`, both derived from the same real
+`TransactionCostAnalysisResult`).
+
+4 new integration tests on a real `portfolio-construction-engine`
+optimizer output: JSON serializability, reconciliation against the
+real underlying result, every real section in the rendered Markdown,
+and deterministic rendering. 46 tests passing (was 42). Pushed.
+
+## Next up: Stage 10 -- Hardening
+
+Comprehensive point-in-time/reproducibility check and CLI-chain test.
+Note: this engine's own reproducibility check must account for
+`portfolio-construction-engine`'s already-documented SLSQP
+floating-point non-determinism (not re-litigate it) -- the cost/
+scheduling layer this engine owns should itself be exactly
+reproducible given a FIXED optimizer output.

@@ -13,12 +13,12 @@ consumes `portfolio-construction-engine`'s own real `OptimizationResult`
 (the already-decided target weights and turnover) and
 `factor-model-engine`'s own real market data (price, ADV, volatility).
 
-**Stages 1–8 of 10 are complete**: schemas, config, dependency wiring,
+**Stages 1–9 of 10 are complete**: schemas, config, dependency wiring,
 real spread/impact/fee/slippage models, total execution cost
-aggregation, net profitability, and participation-rate-constrained
-multi-day execution scheduling (feeding real `required_days` directly
-into the slippage model). See [`docs/STATUS.md`](docs/STATUS.md) for
-stage-by-stage build status.
+aggregation, net profitability, participation-rate-constrained
+multi-day execution scheduling, and one reproducible JSON/Markdown
+report tying it all together. See [`docs/STATUS.md`](docs/STATUS.md)
+for stage-by-stage build status.
 
 ## Install
 
