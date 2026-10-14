@@ -50,7 +50,22 @@ discount structure yet -- documented as a real simplification).
 
 3 new unit tests. 22 tests passing (was 19). Pushed.
 
-## Next up: Stage 5 -- Execution Delay / Slippage
+## Stage 5 -- Execution Delay / Slippage: COMPLETE
 
-Real adverse-selection drift during execution, from real volatility
-over a configurable delay window.
+Added `slippage/slippage.py` (`compute_slippage_cost`): real
+adverse-selection drift during execution (`slippage_bps =
+adverse_selection_coefficient * daily_volatility_bps *
+sqrt(delay_days)`), one-directional (always a real cost, never a
+potential gain) via the adverse-selection coefficient, random-walk
+sqrt-time scaling of real volatility. Missing volatility uses an
+explicit, conservative fallback.
+
+5 new unit tests, including a direct check that 4x the delay exactly
+doubles slippage (real sqrt-time scaling). 27 tests passing (was 22).
+Pushed.
+
+## Next up: Stage 6 -- Total Execution Cost
+
+Aggregates Stages 2-5 into one real per-trade and per-portfolio cost,
+consuming portfolio-construction-engine's own `OptimizationResult`
+directly.

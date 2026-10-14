@@ -65,12 +65,17 @@ class SlippageConfig:
     # RESEARCH ASSUMPTION -- the default real execution delay when the
     # caller doesn't supply one explicitly
     default_delay_days: int = 1
+    # RESEARCH ASSUMPTION -- a conservative, explicit fallback when real
+    # volatility is unknown
+    missing_data_slippage_bps: float = 20.0
 
     def __post_init__(self) -> None:
         if self.adverse_selection_coefficient < 0:
             raise ValueError("adverse_selection_coefficient cannot be negative")
         if self.default_delay_days < 1:
             raise ValueError("default_delay_days must be >= 1")
+        if self.missing_data_slippage_bps < 0:
+            raise ValueError("missing_data_slippage_bps cannot be negative")
 
 
 @dataclass(frozen=True)
