@@ -13,11 +13,10 @@ consumes `portfolio-construction-engine`'s own real `OptimizationResult`
 (the already-decided target weights and turnover) and
 `factor-model-engine`'s own real market data (price, ADV, volatility).
 
-**Stages 1–2 of 10 are complete**: schemas, config, dependency wiring,
-and a real liquidity-tiered spread cost model (sqrt scaling as ADV
-falls, with a conservative, explicit fallback when ADV is unknown).
-See [`docs/STATUS.md`](docs/STATUS.md) for stage-by-stage build
-status.
+**Stages 1–3 of 10 are complete**: schemas, config, dependency wiring,
+a real liquidity-tiered spread cost model, and the classic real
+square-root market-impact model. See [`docs/STATUS.md`](docs/STATUS.md)
+for stage-by-stage build status.
 
 ## Install
 

@@ -29,7 +29,19 @@ convert to portfolio-value terms when aggregating.
 scaling formula at a specific ADV ratio. 14 tests passing (was 9).
 Pushed.
 
-## Next up: Stage 3 -- Market Impact
+## Stage 3 -- Market Impact: COMPLETE
 
-The classic square-root impact model: `impact_bps = eta *
-daily_vol_bps * sqrt(participation_rate)`.
+Added `impact/market_impact.py` (`compute_impact_cost`): the classic,
+real square-root impact model (`impact_bps = impact_coefficient *
+daily_volatility_bps * sqrt(participation_rate)`, the standard
+Almgren/Grinold-Kahn convention). Missing real ADV or volatility uses
+an explicit, conservative fallback -- never silently assumed zero
+impact.
+
+5 new unit tests, including a direct check that quadrupling trade
+size exactly doubles impact (real sqrt scaling, not linear). 19 tests
+passing (was 14). Pushed.
+
+## Next up: Stage 4 -- Fees & Commissions
+
+A simple, configurable real fee schedule.
