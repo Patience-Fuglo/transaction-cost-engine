@@ -42,6 +42,15 @@ impact.
 size exactly doubles impact (real sqrt scaling, not linear). 19 tests
 passing (was 14). Pushed.
 
-## Next up: Stage 4 -- Fees & Commissions
+## Stage 4 -- Fees & Commissions: COMPLETE
 
-A simple, configurable real fee schedule.
+Added `fees/fee_schedule.py` (`compute_fee_cost`): a simple, flat,
+real fee-bps model, independent of trade size (no volume-tiered
+discount structure yet -- documented as a real simplification).
+
+3 new unit tests. 22 tests passing (was 19). Pushed.
+
+## Next up: Stage 5 -- Execution Delay / Slippage
+
+Real adverse-selection drift during execution, from real volatility
+over a configurable delay window.

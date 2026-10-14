@@ -1,3 +1,3 @@
-"""fees -- implemented in a later stage. Stage 1 only establishes the
-repository structure and the schemas/conventions this module will
-build on (see src/transaction_cost/data/schemas.py)."""
+from .fee_schedule import compute_fee_cost
+
+__all__ = ["compute_fee_cost"]
