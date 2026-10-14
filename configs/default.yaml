@@ -1,0 +1,28 @@
+# Engine-wide configuration. Every field tagged RESEARCH ASSUMPTION in
+# docs/research_assumptions.md needs the researcher's explicit sign-off --
+# these are modeling choices, not safe engineering defaults.
+
+run:
+  output_dir: "outputs"
+  random_seed: 1337
+
+spread:
+  base_spread_bps: 5.0                 # RESEARCH ASSUMPTION
+  reference_adv_usd: 1.0e+7             # RESEARCH ASSUMPTION
+  illiquidity_exponent: 0.5             # RESEARCH ASSUMPTION
+  min_spread_bps: 1.0                   # RESEARCH ASSUMPTION
+  missing_adv_spread_bps: 50.0          # RESEARCH ASSUMPTION
+
+impact:
+  impact_coefficient: 0.5               # RESEARCH ASSUMPTION
+  missing_data_impact_bps: 100.0        # RESEARCH ASSUMPTION
+
+slippage:
+  adverse_selection_coefficient: 0.3    # RESEARCH ASSUMPTION
+  default_delay_days: 1                 # RESEARCH ASSUMPTION
+
+fee:
+  fee_bps: 1.0                          # RESEARCH ASSUMPTION
+
+scheduling:
+  max_participation_rate: 0.10          # RESEARCH ASSUMPTION
