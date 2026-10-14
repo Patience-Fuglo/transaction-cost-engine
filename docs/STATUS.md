@@ -98,7 +98,23 @@ real `optimize_portfolio`, then pricing the real cost of executing it
 and computing net profitability -- not a hand-built fixture standing
 in for the dependency. 38 tests passing (was 33). Pushed.
 
-## Next up: Stage 8 -- Execution Scheduling
+## Stage 8 -- Execution Scheduling: COMPLETE
 
-Participation-rate-constrained multi-day execution horizon, feeding
-back into impact/slippage for trades too large to execute in one day.
+Added `scheduling/execution_schedule.py`: `compute_execution_schedule`
+(real participation-rate-constrained multi-day schedule, splitting a
+large trade evenly across the minimum number of real days needed to
+keep daily participation within `max_participation_rate`) and
+`schedule_and_price_execution` (the composed Stage 8 + Stage 6
+workflow -- feeds the schedule's real `required_days` directly into
+Stage 5's slippage delay, since a trade too large to execute in one
+day carries genuinely longer adverse-selection exposure).
+
+4 new unit tests, including a direct check that the composed workflow
+actually threads `required_days` into the real slippage formula (not
+just computed independently and ignored). 42 tests passing (was 38).
+Pushed.
+
+## Next up: Stage 9 -- Reporting
+
+One reproducible JSON/Markdown report tying the whole engine
+together.
