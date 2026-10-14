@@ -3,6 +3,73 @@
 Tracks stage-by-stage completion, mirroring the other three engines'
 own `docs/STATUS.md` convention.
 
+## Final summary (all 10 stages complete)
+
+**Architecture.** `data/` (schemas) -> `spread/` + `impact/` +
+`fees/` + `slippage/` (the four real cost components) ->
+`execution/` (aggregation + `OptimizationResult` consumption) ->
+`profitability/` (`gross - cost`) -> `scheduling/`
+(participation-rate-constrained multi-day execution, feeding real
+`required_days` back into slippage) -> `pipeline/` + `reporting/`
+(one orchestration function, one JSON/Markdown report). Depends on
+`factor-model-engine` and `portfolio-construction-engine` as pinned
+git dependencies; never re-runs an optimizer or re-decides a trade --
+it only prices the real cost of one already decided elsewhere.
+
+**Important formulas:** spread `base_spread_bps * (reference_adv_usd
+/ adv_usd) ** illiquidity_exponent` (floored); impact
+`impact_coefficient * daily_volatility_bps * sqrt(participation_rate)`
+(the classic Almgren/Grinold-Kahn convention); slippage
+`adverse_selection_coefficient * daily_volatility_bps *
+sqrt(delay_days)`; net profitability `gross_expected_return -
+total_execution_cost`, enforced as a real `__post_init__` identity on
+`NetProfitabilityResult`.
+
+**Test counts.** 49 tests passing: unit tests per cost component
+(each verified against its own real formula and real monotonicity
+properties -- sqrt scaling in impact and slippage, confirmed by
+direct 4x-input tests), integration tests on real
+`portfolio-construction-engine` optimizer output, and two Stage 10
+hardening tests.
+
+**Reproducibility, adapted to this engine's real scope.** Unlike the
+other three engines, this engine never consumes a historical date
+range itself (it prices ONE already-decided `OptimizationResult`
+snapshot), so there is no "extend into the future" look-ahead
+scenario to test. Its real comprehensive check: given a FIXED
+optimizer output, the whole cost/scheduling/profitability/reporting
+pipeline is confirmed EXACTLY reproducible across repeated runs
+(verified 3 independent times) -- correctly, since nothing in Stages
+6-9 calls a numerical solver or a near-zero-magnitude BLAS matrix
+multiply, unlike `portfolio-construction-engine`'s SLSQP or
+`portfolio-risk-engine`'s quadratic form.
+
+**A real, meaningful end-to-end property, also verified directly:**
+feeding the SAME optimizer decision through illiquid vs. liquid real
+market data produces genuinely higher total execution cost and
+genuinely lower net expected return for the illiquid case -- not just
+a unit-level formula check, but confirmed across the whole pipeline.
+
+**End-to-end demonstration.** `scripts/run_cost_analysis.py` optimizes
+a real portfolio and runs the complete Stage 6-9 cost analysis;
+`tests/integration/test_cli_workflow.py` runs it as a real subprocess.
+
+**Limitations, identified rather than hidden:**
+- Fees are a single flat bps rate -- no real volume-tiered discount
+  structure.
+- Execution scheduling splits a multi-day trade EVENLY, not via a
+  real VWAP/TWAP front/back-loading profile.
+- Slippage/impact fallback values (when ADV or volatility is unknown)
+  are conservative, documented constants, not derived from any real
+  cross-sectional calibration.
+- This engine inherits every upstream limitation already documented
+  in `factor-model-engine` and `portfolio-construction-engine`
+  (including the SLSQP non-determinism, which this engine's own
+  Stage 10 explicitly does NOT re-litigate, only correctly scopes
+  around).
+- All data is synthetic; this engine has no real-vendor data adapter
+  of its own.
+
 ## Stage 1 -- Foundation: COMPLETE
 
 Schemas (`data/schemas.py`): `TradeOrder` (real trade_value_usd/
@@ -126,11 +193,16 @@ optimizer output: JSON serializability, reconciliation against the
 real underlying result, every real section in the rendered Markdown,
 and deterministic rendering. 46 tests passing (was 42). Pushed.
 
-## Next up: Stage 10 -- Hardening
+## Stage 10 -- Hardening: COMPLETE
 
-Comprehensive point-in-time/reproducibility check and CLI-chain test.
-Note: this engine's own reproducibility check must account for
-`portfolio-construction-engine`'s already-documented SLSQP
-floating-point non-determinism (not re-litigate it) -- the cost/
-scheduling layer this engine owns should itself be exactly
-reproducible given a FIXED optimizer output.
+Added `tests/integration/test_full_system.py` (the comprehensive
+check, scoped correctly to this engine's real boundaries -- see the
+Final Summary above) and `tests/integration/test_cli_workflow.py`
+(real subprocess CLI test). Added `scripts/run_cost_analysis.py`,
+this repo's first CLI entry point.
+
+49 tests passing (was 46). Full leak-check clean across the whole
+repo. Pushed.
+
+**All 10 stages of the transaction-cost-engine build are now
+complete.**
