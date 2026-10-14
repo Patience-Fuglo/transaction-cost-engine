@@ -15,8 +15,21 @@ coefficient tagged RESEARCH ASSUMPTION. Dependency wiring to
 resolving cleanly through a fresh venv install. 9 tests passing.
 Pushed.
 
-## Next up: Stage 2 -- Spread Cost
+## Stage 2 -- Spread Cost: COMPLETE
 
-A real, liquidity-tiered half-spread model: spread widens as real ADV
-falls below a reference level, with an explicit, conservative fallback
-when ADV is unknown.
+Added `spread/spread_cost.py` (`compute_spread_cost`): real sqrt-style
+liquidity scaling (`spread_bps = base_spread_bps * (reference_adv_usd
+/ adv_usd) ** illiquidity_exponent`, floored at `min_spread_bps`), with
+an explicit, conservative fallback (never silently assumed liquid)
+when real ADV is unknown. `cost_fraction` reported as a fraction of
+TRADE value, the standard real bps-cost convention -- later stages
+convert to portfolio-value terms when aggregating.
+
+5 new unit tests, including a direct check against the real sqrt
+scaling formula at a specific ADV ratio. 14 tests passing (was 9).
+Pushed.
+
+## Next up: Stage 3 -- Market Impact
+
+The classic square-root impact model: `impact_bps = eta *
+daily_vol_bps * sqrt(participation_rate)`.
