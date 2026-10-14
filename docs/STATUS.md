@@ -82,7 +82,23 @@ against a real `gross_expected_return`.
 trade orders directly from a real `portfolio_construction.data.
 OptimizationResult`. 33 tests passing (was 27). Pushed.
 
-## Next up: Stage 7 -- Net Profitability
+## Stage 7 -- Net Profitability: COMPLETE
 
+Added `profitability/net_profitability.py` (`compute_net_profitability`):
+this engine's own central question, answered directly --
 `net_expected_return = gross_expected_return - total_execution_cost`,
-both real, both in portfolio-value units.
+reusing Stage 6's own real portfolio-level cost aggregation. Warns
+explicitly when real execution cost consumes all of (or exceeds) a
+real positive gross expected return -- "this trade is not worth
+making as costed," not silently reported as if it were fine.
+
+4 new unit tests plus a genuine cross-repo integration test:
+optimizing a real portfolio with `portfolio-construction-engine`'s
+real `optimize_portfolio`, then pricing the real cost of executing it
+and computing net profitability -- not a hand-built fixture standing
+in for the dependency. 38 tests passing (was 33). Pushed.
+
+## Next up: Stage 8 -- Execution Scheduling
+
+Participation-rate-constrained multi-day execution horizon, feeding
+back into impact/slippage for trades too large to execute in one day.
